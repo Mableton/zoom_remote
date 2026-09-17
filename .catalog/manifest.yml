@@ -1,14 +1,16 @@
 # Vorlage für die Einreichung im Flipper Apps Catalog.
 # Zielpfad im Catalog-Repo: applications/Tools/zoom_remote/manifest.yml
-# commit_sha vor dem Einreichen auf den Release-Commit setzen.
+# commit_sha vor dem Einreichen auf den einzureichenden Commit setzen.
 sourcecode:
   type: git
   location:
     origin: https://github.com/Mableton/zoom_remote.git
     commit_sha: REPLACE_WITH_RELEASE_COMMIT
+short_description: Remote control for Zoom Workplace over USB or Bluetooth HID
 description: "@.catalog/README.md"
 changelog: "@.catalog/CHANGELOG.md"
 screenshots:
-  - ".catalog/screenshots/1.png"
-  - ".catalog/screenshots/2.png"
-  - ".catalog/screenshots/3.png"
+  - .catalog/screenshots/1.png
+  - .catalog/screenshots/2.png
+  - .catalog/screenshots/3.png
+  - .catalog/screenshots/4.png

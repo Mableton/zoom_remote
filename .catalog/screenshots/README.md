@@ -1,6 +1,2 @@
-Screenshots für den Flipper Apps Catalog. Sie müssen mit der Screenshot-Funktion
-von qFlipper aufgenommen und unverändert abgelegt werden:
-
-1. `1.png` Remote-Screen
-2. `2.png` Teilen-Modus
-3. `3.png` Hotkey-Menü
+Screenshots für den Flipper Apps Catalog, aufgenommen mit qFlipper (128x64,
+unverändert): 1 Remote-Screen, 2 Hotkey-Kategorien, 3 Verbindungsmenü, 4 OS-Menü.

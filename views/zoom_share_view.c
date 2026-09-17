@@ -30,7 +30,8 @@ static void zoom_share_view_draw(Canvas* canvas, void* model_raw) {
     canvas_draw_box(canvas, 0, 0, 128, 13);
     canvas_set_color(canvas, ColorWhite);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, 64, 2, AlignCenter, AlignTop, "TEILEN-MODUS");
+    canvas_draw_str_aligned(
+        canvas, 64, 2, AlignCenter, AlignTop, zoom_tr("SHARE MODE", "TEILEN-MODUS"));
     canvas_set_color(canvas, ColorBlack);
 
     /* Steuerkreuz links; gedrückte Richtung wird als gefüllter Kreis markiert */
@@ -57,12 +58,12 @@ static void zoom_share_view_draw(Canvas* canvas, void* model_raw) {
 
     /* Legende rechts */
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 50, 24, "Kreuz: Pfeiltasten");
+    canvas_draw_str(canvas, 50, 24, zoom_tr("Pad: arrow keys", "Kreuz: Pfeiltasten"));
     canvas_draw_str(canvas, 50, 34, "OK: Enter");
-    canvas_draw_str(canvas, 50, 44, "OK lang: Tab");
-    canvas_draw_str(canvas, 50, 54, "Zurueck: Esc+Ende");
+    canvas_draw_str(canvas, 50, 44, zoom_tr("Hold OK: Tab", "OK lang: Tab"));
+    canvas_draw_str(canvas, 50, 54, zoom_tr("Back: Esc+exit", "Zurueck: Esc+Ende"));
     if(!model->connected) {
-        canvas_draw_str(canvas, 50, 63, "Keine Verbindung!");
+        canvas_draw_str(canvas, 50, 63, zoom_tr("Not connected!", "Keine Verbindung!"));
     }
 }
 

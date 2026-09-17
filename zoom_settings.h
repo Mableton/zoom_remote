@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "zoom_i18n.h"
 
 /* Ausgewähltes Betriebssystem des Zoom-Rechners */
 typedef enum {
@@ -29,6 +30,7 @@ typedef struct {
     ZoomOs os;
     ZoomConn conn;
     ZoomLayout layout;
+    ZoomLang lang;
 } ZoomSettings;
 
 /* Lädt die letzte Auswahl; bei Fehler bleiben die Standardwerte stehen */

@@ -55,16 +55,16 @@ static bool zoom_remote_send_hotkey(ZoomRemoteApp* app, const ZoomHotkey* hotkey
     uint16_t hid_code = 0;
 
     if(!zoom_keymap_to_hid(combo, app->settings.os, app->settings.layout, &hid_code)) {
-        FURI_LOG_W(TAG, "'%s' fuer dieses OS/Layout nicht sendbar", hotkey->name);
+        FURI_LOG_W(TAG, "'%s' fuer dieses OS/Layout nicht sendbar", zoom_hotkey_name(hotkey));
         notification_message(app->notifications, &sequence_error);
         return false;
     }
     if(!app->transport || !zoom_transport_tap(app->transport, hid_code)) {
-        FURI_LOG_W(TAG, "'%s' nicht gesendet: keine Verbindung", hotkey->name);
+        FURI_LOG_W(TAG, "'%s' nicht gesendet: keine Verbindung", zoom_hotkey_name(hotkey));
         notification_message(app->notifications, &sequence_error);
         return false;
     }
-    FURI_LOG_I(TAG, "Gesendet: %s (0x%04X)", hotkey->name, hid_code);
+    FURI_LOG_I(TAG, "Gesendet: %s (0x%04X)", zoom_hotkey_name(hotkey), hid_code);
     notification_message(app->notifications, &sequence_blink_blue_10);
     return true;
 }
@@ -111,8 +111,23 @@ static bool zoom_remote_navigation_callback(void* context) {
 
 /* ---- Startmenü ----------------------------------------------------------- */
 
+/* Zusätzlicher Eintrag im OS-Menü: Sprache umschalten */
+#define ZOOM_MENU_OS_LANGUAGE 100
+
+static void zoom_remote_build_menus(ZoomRemoteApp* app);
+
 static void zoom_remote_menu_os_callback(void* context, uint32_t index) {
     ZoomRemoteApp* app = context;
+
+    if(index == ZOOM_MENU_OS_LANGUAGE) {
+        /* Sprache wechseln, merken und alle Menüs neu beschriften */
+        app->settings.lang = (app->settings.lang == ZoomLangEn) ? ZoomLangDe : ZoomLangEn;
+        zoom_lang_set(app->settings.lang);
+        zoom_settings_save(&app->settings);
+        zoom_remote_build_menus(app);
+        submenu_set_selected_item(app->menu_os, ZOOM_MENU_OS_LANGUAGE);
+        return;
+    }
     app->settings.os = (ZoomOs)index;
     submenu_set_selected_item(app->menu_conn, app->settings.conn);
     zoom_remote_switch_view(app, ZoomViewMenuConn);
@@ -184,17 +199,20 @@ static void zoom_remote_show_confirm_leave(ZoomRemoteApp* app) {
     snprintf(
         app->dialog_text,
         sizeof(app->dialog_text),
-        "Sendet %s an Zoom.\nZoom fragt danach\nnochmal nach.",
+        zoom_tr(
+            "Sends %s to Zoom.\nZoom will ask again\nto confirm.",
+            "Sendet %s an Zoom.\nZoom fragt danach\nnochmal nach."),
         combo_text);
 
     /* dialog_ex_reset löscht auch Callback und Kontext -> danach neu setzen */
     dialog_ex_reset(app->dialog);
     dialog_ex_set_context(app->dialog, app);
     dialog_ex_set_result_callback(app->dialog, zoom_remote_dialog_callback);
-    dialog_ex_set_header(app->dialog, "Meeting verlassen?", 64, 2, AlignCenter, AlignTop);
+    dialog_ex_set_header(
+        app->dialog, zoom_tr("Leave meeting?", "Meeting verlassen?"), 64, 2, AlignCenter, AlignTop);
     dialog_ex_set_text(app->dialog, app->dialog_text, 64, 16, AlignCenter, AlignTop);
-    dialog_ex_set_left_button_text(app->dialog, "Nein");
-    dialog_ex_set_right_button_text(app->dialog, "Ja");
+    dialog_ex_set_left_button_text(app->dialog, zoom_tr("No", "Nein"));
+    dialog_ex_set_right_button_text(app->dialog, zoom_tr("Yes", "Ja"));
     app->dialog_mode = ZoomDialogConfirmLeave;
     zoom_remote_switch_view(app, ZoomViewDialog);
 }
@@ -213,12 +231,12 @@ static void zoom_remote_show_hotkey_info(ZoomRemoteApp* app, const ZoomHotkey* h
         zoom_os_name(app->settings.os),
         combo_text,
         zoom_scope_name(zoom_hotkey_scope(hotkey, app->settings.os)),
-        hotkey->note ? hotkey->note : "");
+        zoom_hotkey_note(hotkey) ? zoom_hotkey_note(hotkey) : "");
 
     dialog_ex_reset(app->dialog);
     dialog_ex_set_context(app->dialog, app);
     dialog_ex_set_result_callback(app->dialog, zoom_remote_dialog_callback);
-    dialog_ex_set_header(app->dialog, hotkey->name, 64, 2, AlignCenter, AlignTop);
+    dialog_ex_set_header(app->dialog, zoom_hotkey_name(hotkey), 64, 2, AlignCenter, AlignTop);
     dialog_ex_set_text(app->dialog, app->dialog_text, 2, 16, AlignLeft, AlignTop);
     dialog_ex_set_center_button_text(app->dialog, "OK");
     app->dialog_mode = ZoomDialogHotkeyInfo;
@@ -254,7 +272,7 @@ static void zoom_remote_fill_hotkeys(ZoomRemoteApp* app, ZoomCategory category) 
         if(!zoom_keymap_to_hid(combo, app->settings.os, app->settings.layout, &hid_code)) continue;
 
         submenu_add_item_ex(
-            app->menu_hotkeys, hotkey->name, i, zoom_remote_menu_hotkeys_callback, app);
+            app->menu_hotkeys, zoom_hotkey_name(hotkey), i, zoom_remote_menu_hotkeys_callback, app);
     }
     submenu_set_selected_item(app->menu_hotkeys, 0);
 }
@@ -344,6 +362,56 @@ static void zoom_remote_view_callback(ZoomRemoteEvent event, void* context) {
     zoom_remote_view_set_state(app->remote_view, app->mic_on, app->cam_on);
 }
 
+/* Füllt alle festen Menüs in der aktuellen Sprache (auch nach Sprachwechsel) */
+static void zoom_remote_build_menus(ZoomRemoteApp* app) {
+    /* Menü 1: Betriebssystem + Sprachumschalter */
+    submenu_reset(app->menu_os);
+    submenu_set_header(app->menu_os, zoom_tr("Zoom runs on?", "Zoom auf welchem OS?"));
+    submenu_add_item(app->menu_os, "Windows", ZoomOsWindows, zoom_remote_menu_os_callback, app);
+    submenu_add_item(app->menu_os, "macOS", ZoomOsMac, zoom_remote_menu_os_callback, app);
+    submenu_add_item(
+        app->menu_os,
+        zoom_tr("Sprache: Deutsch", "Language: English"),
+        ZOOM_MENU_OS_LANGUAGE,
+        zoom_remote_menu_os_callback,
+        app);
+    submenu_set_selected_item(app->menu_os, app->settings.os);
+
+    /* Menü 2: Verbindung */
+    submenu_reset(app->menu_conn);
+    submenu_set_header(app->menu_conn, zoom_tr("Connection", "Verbindung"));
+    submenu_add_item(app->menu_conn, "USB", ZoomConnUsb, zoom_remote_menu_conn_callback, app);
+    submenu_add_item(app->menu_conn, "Bluetooth", ZoomConnBt, zoom_remote_menu_conn_callback, app);
+    submenu_add_item(
+        app->menu_conn,
+        zoom_tr("Forget BT pairing", "BT-Kopplung loeschen"),
+        ZOOM_MENU_CONN_FORGET_BT,
+        zoom_remote_menu_conn_callback,
+        app);
+    submenu_set_selected_item(app->menu_conn, app->settings.conn);
+
+    /* Menü 3: Tastaturlayout am Rechner (nur Windows) */
+    submenu_reset(app->menu_layout);
+    submenu_set_header(app->menu_layout, zoom_tr("Host keyboard layout", "Tastatur am Rechner"));
+    submenu_add_item(
+        app->menu_layout, "QWERTZ (DE)", ZoomLayoutQwertz, zoom_remote_menu_layout_callback, app);
+    submenu_add_item(
+        app->menu_layout, "QWERTY (US)", ZoomLayoutQwerty, zoom_remote_menu_layout_callback, app);
+    submenu_set_selected_item(app->menu_layout, app->settings.layout);
+
+    /* Hotkey-Kategorien */
+    submenu_reset(app->menu_categories);
+    submenu_set_header(app->menu_categories, zoom_tr("All hotkeys", "Alle Hotkeys"));
+    for(uint32_t c = 0; c < ZoomCatCount; c++) {
+        submenu_add_item(
+            app->menu_categories,
+            zoom_category_name((ZoomCategory)c),
+            c,
+            zoom_remote_menu_categories_callback,
+            app);
+    }
+}
+
 /* ---- Auf- und Abbau ------------------------------------------------------ */
 
 static ZoomRemoteApp* zoom_remote_app_alloc(void) {
@@ -367,37 +435,13 @@ static ZoomRemoteApp* zoom_remote_app_alloc(void) {
         app->view_dispatcher, zoom_remote_tick_callback, ZOOM_TICK_MS);
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
-    /* Menü 1: Betriebssystem */
+    /* Startmenüs (Inhalt kommt aus zoom_remote_build_menus) */
     app->menu_os = submenu_alloc();
-    submenu_set_header(app->menu_os, "Zoom auf welchem OS?");
-    submenu_add_item(app->menu_os, "Windows", ZoomOsWindows, zoom_remote_menu_os_callback, app);
-    submenu_add_item(app->menu_os, "macOS", ZoomOsMac, zoom_remote_menu_os_callback, app);
-    submenu_set_selected_item(app->menu_os, app->settings.os);
     view_dispatcher_add_view(app->view_dispatcher, ZoomViewMenuOs, submenu_get_view(app->menu_os));
-
-    /* Menü 2: Verbindung */
     app->menu_conn = submenu_alloc();
-    submenu_set_header(app->menu_conn, "Verbindung");
-    submenu_add_item(app->menu_conn, "USB", ZoomConnUsb, zoom_remote_menu_conn_callback, app);
-    submenu_add_item(app->menu_conn, "Bluetooth", ZoomConnBt, zoom_remote_menu_conn_callback, app);
-    submenu_add_item(
-        app->menu_conn,
-        "BT-Kopplung loeschen",
-        ZOOM_MENU_CONN_FORGET_BT,
-        zoom_remote_menu_conn_callback,
-        app);
-    submenu_set_selected_item(app->menu_conn, app->settings.conn);
     view_dispatcher_add_view(
         app->view_dispatcher, ZoomViewMenuConn, submenu_get_view(app->menu_conn));
-
-    /* Menü 3: Tastaturlayout am Rechner */
     app->menu_layout = submenu_alloc();
-    submenu_set_header(app->menu_layout, "Tastatur am Rechner");
-    submenu_add_item(
-        app->menu_layout, "QWERTZ (DE)", ZoomLayoutQwertz, zoom_remote_menu_layout_callback, app);
-    submenu_add_item(
-        app->menu_layout, "QWERTY (US)", ZoomLayoutQwerty, zoom_remote_menu_layout_callback, app);
-    submenu_set_selected_item(app->menu_layout, app->settings.layout);
     view_dispatcher_add_view(
         app->view_dispatcher, ZoomViewMenuLayout, submenu_get_view(app->menu_layout));
 
@@ -415,15 +459,6 @@ static ZoomRemoteApp* zoom_remote_app_alloc(void) {
 
     /* Hotkey-Kategorien */
     app->menu_categories = submenu_alloc();
-    submenu_set_header(app->menu_categories, "Alle Hotkeys");
-    for(uint32_t c = 0; c < ZoomCatCount; c++) {
-        submenu_add_item(
-            app->menu_categories,
-            zoom_category_name((ZoomCategory)c),
-            c,
-            zoom_remote_menu_categories_callback,
-            app);
-    }
     view_dispatcher_add_view(
         app->view_dispatcher, ZoomViewCategories, submenu_get_view(app->menu_categories));
 
@@ -438,6 +473,9 @@ static ZoomRemoteApp* zoom_remote_app_alloc(void) {
     dialog_ex_set_result_callback(app->dialog, zoom_remote_dialog_callback);
     view_dispatcher_add_view(
         app->view_dispatcher, ZoomViewDialog, dialog_ex_get_view(app->dialog));
+
+    zoom_lang_set(app->settings.lang);
+    zoom_remote_build_menus(app);
 
     return app;
 }

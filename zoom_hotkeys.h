@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "zoom_settings.h"
+#include "zoom_i18n.h"
 
 /*
  * Datentabelle aller Zoom-Hotkeys für Windows und macOS.
@@ -94,19 +95,23 @@ typedef enum {
 } ZoomHotkeyId;
 
 typedef struct {
-    const char* name; /* Anzeigename (kurz, für Submenu) */
+    const char* name[ZoomLangCount]; /* Anzeigename (kurz, für Submenu): {Englisch, Deutsch} */
     ZoomCategory category;
     ZoomCombo win;
     ZoomCombo mac;
     ZoomScope scope_win;
     ZoomScope scope_mac;
-    const char* note; /* Hinweis, z.B. "nur Host"; NULL wenn keiner */
+    const char* note[ZoomLangCount]; /* Hinweis {Englisch, Deutsch}; NULL wenn keiner */
 } ZoomHotkey;
 
 /* Zugriff auf die Tabelle */
 size_t zoom_hotkeys_count(void);
 const ZoomHotkey* zoom_hotkey_get(size_t index);
 const char* zoom_category_name(ZoomCategory category);
+
+/* Name und Hinweis in der aktuellen Sprache (Hinweis kann NULL sein) */
+const char* zoom_hotkey_name(const ZoomHotkey* hotkey);
+const char* zoom_hotkey_note(const ZoomHotkey* hotkey);
 
 /* Kombination und Wirkungsbereich für das gewählte OS */
 ZoomCombo zoom_hotkey_combo(const ZoomHotkey* hotkey, ZoomOs os);

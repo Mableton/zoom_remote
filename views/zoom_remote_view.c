@@ -47,7 +47,7 @@ static void zoom_remote_view_draw_tile(
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, x + 26, y + 10, name);
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, x + 26, y + 19, on ? "AN" : "AUS");
+    canvas_draw_str(canvas, x + 26, y + 19, on ? zoom_tr("ON", "AN") : zoom_tr("OFF", "AUS"));
     canvas_set_color(canvas, ColorBlack);
 }
 
@@ -95,15 +95,18 @@ static void zoom_remote_view_draw(Canvas* canvas, void* model_raw) {
     canvas_draw_str(canvas, 12, 43, "Cam");
     canvas_draw_icon(canvas, 36, 38, &I_ButtonDown_7x4);
     canvas_draw_str(canvas, 45, 43, "Hand");
-    canvas_draw_str_aligned(canvas, 126, 43, AlignRight, AlignBottom, "(geschaetzt)");
+    canvas_draw_str_aligned(
+        canvas, 126, 43, AlignRight, AlignBottom, zoom_tr("(estimated)", "(geschaetzt)"));
 
     /* Hinweiszeile 2: Belegung bei langem Druck */
     uint8_t lx = 2;
-    canvas_draw_str(canvas, lx, 51, "lang:");
-    lx += canvas_string_width(canvas, "lang:") + 4;
+    const char* hold = zoom_tr("hold:", "lang:");
+    canvas_draw_str(canvas, lx, 51, hold);
+    lx += canvas_string_width(canvas, hold) + 4;
     canvas_draw_icon(canvas, lx, 44, &I_ButtonLeft_4x7);
-    canvas_draw_str(canvas, lx + 6, 51, "Modus");
-    lx += 6 + canvas_string_width(canvas, "Modus") + 4;
+    const char* mode = zoom_tr("Mode", "Modus");
+    canvas_draw_str(canvas, lx + 6, 51, mode);
+    lx += 6 + canvas_string_width(canvas, mode) + 4;
     canvas_draw_icon(canvas, lx, 44, &I_ButtonRight_4x7);
     canvas_draw_str(canvas, lx + 6, 51, "Menu");
     lx += 6 + canvas_string_width(canvas, "Menu") + 4;
@@ -111,9 +114,9 @@ static void zoom_remote_view_draw(Canvas* canvas, void* model_raw) {
     canvas_draw_str(canvas, lx + 9, 51, "Chat");
 
     /* Tastenleiste unten im Flipper-Stil */
-    elements_button_left(canvas, "Teilen");
+    elements_button_left(canvas, zoom_tr("Share", "Teilen"));
     elements_button_center(canvas, "Mic");
-    elements_button_right(canvas, "Teiln.");
+    elements_button_right(canvas, zoom_tr("People", "Teiln."));
 }
 
 static bool zoom_remote_view_input(InputEvent* event, void* context) {

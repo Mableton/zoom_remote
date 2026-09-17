@@ -16,6 +16,7 @@
 #define KEY_OS     "OS"
 #define KEY_CONN   "Verbindung"
 #define KEY_LAYOUT "Layout"
+#define KEY_LANG   "Language"
 
 void zoom_settings_load(ZoomSettings* settings) {
     furi_assert(settings);
@@ -24,6 +25,7 @@ void zoom_settings_load(ZoomSettings* settings) {
     settings->os = ZoomOsWindows;
     settings->conn = ZoomConnUsb;
     settings->layout = ZoomLayoutQwertz;
+    settings->lang = ZoomLangEn;
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* ff = flipper_format_file_alloc(storage);
@@ -46,6 +48,10 @@ void zoom_settings_load(ZoomSettings* settings) {
         }
         if(flipper_format_read_uint32(ff, KEY_LAYOUT, &value, 1) && value < ZoomLayoutCount) {
             settings->layout = (ZoomLayout)value;
+        }
+        /* Sprache fehlt in älteren Dateien -> Standard bleibt Englisch */
+        if(flipper_format_read_uint32(ff, KEY_LANG, &value, 1) && value < ZoomLangCount) {
+            settings->lang = (ZoomLang)value;
         }
         FURI_LOG_I(TAG, "Einstellungen geladen");
     } while(false);
@@ -77,6 +83,8 @@ bool zoom_settings_save(const ZoomSettings* settings) {
         if(!flipper_format_write_uint32(ff, KEY_CONN, &value, 1)) break;
         value = settings->layout;
         if(!flipper_format_write_uint32(ff, KEY_LAYOUT, &value, 1)) break;
+        value = settings->lang;
+        if(!flipper_format_write_uint32(ff, KEY_LANG, &value, 1)) break;
         ok = true;
     } while(false);
 

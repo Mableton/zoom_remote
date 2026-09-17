@@ -46,7 +46,9 @@ auf Windows und macOS, per USB-HID oder Bluetooth-HID.
   Tastenpositionen (US-Belegung) aus: dort keine Umrechnung, das Layout-Menü
   wird übersprungen (geprüft 2026-09-17, Zoom 7.0.6, deutscher Mac).
 - ViewDispatcher, Submenu, eigene Views für Remote-Screen und Teilen-Modus.
-- Code-Kommentare auf Deutsch.
+- Code-Kommentare auf Deutsch. Oberfläche zweisprachig über `zoom_tr("English", "Deutsch")`
+  (`zoom_i18n.*`), Standard Englisch, umschaltbar im ersten Menü.
+- Lizenz GPL-3.0. Katalog-Material liegt unter `.catalog/`.
 
 ### Vorgehen
 1. Plan mit Dateistruktur und Tastenbelegung zeigen, auf OK warten.
@@ -76,6 +78,7 @@ zoom_hotkeys.h/.c        Hotkey-Datentabelle (Win/Mac, Kategorie, Fokus/Global)
 zoom_keymap.h/.c         Kombi -> HID-Keycode, Layout QWERTZ/QWERTY
 zoom_transport.h/.c      USB-/BLE-HID hinter einer API, Init/Teardown wie HID-App
 zoom_settings.h/.c       Laden/Speichern der letzten Auswahl
+zoom_i18n.h/.c           Sprachumschaltung Englisch/Deutsch
 views/zoom_remote_view.* Remote-Screen
 views/zoom_share_view.*  Teilen-Modus
 images/                  Icons für die Views

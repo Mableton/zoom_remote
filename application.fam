@@ -1,0 +1,15 @@
+# Manifest der Zoom-Fernbedienung
+App(
+    appid="zoom_remote",
+    name="Zoom Remote",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="zoom_remote_app",
+    stack_size=4 * 1024,
+    fap_category="Tools",
+    fap_version="0.1",
+    fap_icon="zoom_remote.png",  # 10x10 1-Bit PNG
+    fap_icon_assets="images",  # Icons für die Views
+    fap_libs=["ble_profile"],  # Bluetooth-HID-Profil
+    fap_description="Fernbedienung fuer Zoom Workplace (USB/Bluetooth HID)",
+    fap_author="Manoah Ruiz Rodriguez",
+)

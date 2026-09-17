@@ -1,0 +1,11 @@
+# Build-Ausgaben von ufbt
+dist/
+.ufbt/
+
+# Editor- und Werkzeugdateien
+.vscode/
+.clang-format
+.DS_Store
+
+# Lokale Claude-Code-Einstellungen
+.claude/settings.local.json

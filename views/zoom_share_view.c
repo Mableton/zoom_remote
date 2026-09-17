@@ -3,7 +3,7 @@
 
 #include <furi.h>
 #include <gui/elements.h>
-#include <assets_icons.h>
+#include "zoom_remote_icons.h"
 
 struct ZoomShareView {
     View* view;
@@ -45,15 +45,15 @@ static void zoom_share_view_draw(Canvas* canvas, void* model_raw) {
     if(model->ok) canvas_draw_disc(canvas, cx, cy, 5);
 
     canvas_set_color(canvas, model->up ? ColorWhite : ColorBlack);
-    canvas_draw_icon(canvas, cx - 3, cy - 15, &I_ButtonUp_7x4);
+    canvas_draw_icon(canvas, cx - 3, cy - 15, &I_arrow_up_7x4);
     canvas_set_color(canvas, model->down ? ColorWhite : ColorBlack);
-    canvas_draw_icon(canvas, cx - 3, cy + 12, &I_ButtonDown_7x4);
+    canvas_draw_icon(canvas, cx - 3, cy + 12, &I_arrow_down_7x4);
     canvas_set_color(canvas, model->left ? ColorWhite : ColorBlack);
-    canvas_draw_icon(canvas, cx - 15, cy - 3, &I_ButtonLeft_4x7);
+    canvas_draw_icon(canvas, cx - 15, cy - 3, &I_arrow_left_4x7);
     canvas_set_color(canvas, model->right ? ColorWhite : ColorBlack);
-    canvas_draw_icon(canvas, cx + 12, cy - 3, &I_ButtonRight_4x7);
+    canvas_draw_icon(canvas, cx + 12, cy - 3, &I_arrow_right_4x7);
     canvas_set_color(canvas, model->ok ? ColorWhite : ColorBlack);
-    canvas_draw_icon(canvas, cx - 3, cy - 3, &I_ButtonCenter_7x7);
+    canvas_draw_icon(canvas, cx - 3, cy - 3, &I_ok_7x7);
     canvas_set_color(canvas, ColorBlack);
 
     /* Legende rechts */

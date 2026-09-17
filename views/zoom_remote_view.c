@@ -2,7 +2,6 @@
 
 #include <furi.h>
 #include <gui/elements.h>
-#include <assets_icons.h>
 #include "zoom_remote_icons.h"
 
 struct ZoomRemoteView {
@@ -91,9 +90,9 @@ static void zoom_remote_view_draw(Canvas* canvas, void* model_raw) {
 
     /* Hinweiszeile 1: Hoch/Runter kurz und Schätz-Hinweis */
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_icon(canvas, 3, 38, &I_ButtonUp_7x4);
+    canvas_draw_icon(canvas, 3, 38, &I_arrow_up_7x4);
     canvas_draw_str(canvas, 12, 43, "Cam");
-    canvas_draw_icon(canvas, 36, 38, &I_ButtonDown_7x4);
+    canvas_draw_icon(canvas, 36, 38, &I_arrow_down_7x4);
     canvas_draw_str(canvas, 45, 43, "Hand");
     canvas_draw_str_aligned(
         canvas, 126, 43, AlignRight, AlignBottom, zoom_tr("(estimated)", "(geschaetzt)"));
@@ -103,14 +102,14 @@ static void zoom_remote_view_draw(Canvas* canvas, void* model_raw) {
     const char* hold = zoom_tr("hold:", "lang:");
     canvas_draw_str(canvas, lx, 51, hold);
     lx += canvas_string_width(canvas, hold) + 4;
-    canvas_draw_icon(canvas, lx, 44, &I_ButtonLeft_4x7);
+    canvas_draw_icon(canvas, lx, 44, &I_arrow_left_4x7);
     const char* mode = zoom_tr("Mode", "Modus");
     canvas_draw_str(canvas, lx + 6, 51, mode);
     lx += 6 + canvas_string_width(canvas, mode) + 4;
-    canvas_draw_icon(canvas, lx, 44, &I_ButtonRight_4x7);
+    canvas_draw_icon(canvas, lx, 44, &I_arrow_right_4x7);
     canvas_draw_str(canvas, lx + 6, 51, "Menu");
     lx += 6 + canvas_string_width(canvas, "Menu") + 4;
-    canvas_draw_icon(canvas, lx, 46, &I_ButtonDown_7x4);
+    canvas_draw_icon(canvas, lx, 46, &I_arrow_down_7x4);
     canvas_draw_str(canvas, lx + 9, 51, "Chat");
 
     /* Tastenleiste unten im Flipper-Stil */

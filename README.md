@@ -53,9 +53,15 @@ for **Zoom Workplace** on macOS and Windows, over **USB HID** or **Bluetooth HID
 
 ## Install
 
-Download `zoom_remote.fap` from the
-[latest release](https://github.com/Mableton/zoom_remote/releases/latest) and copy
-it to `SD Card/apps/Tools/` with qFlipper or the mobile app.
+Download the build for your firmware from the
+[latest release](https://github.com/Mableton/zoom_remote/releases/latest):
+
+- `zoom_remote_official-1.4.3.fap` for official Flipper firmware 1.4.3
+- `zoom_remote_momentum-mntm-012.fap` for Momentum firmware mntm-012
+
+Copy it to `SD Card/apps/Tools/` with qFlipper or the mobile app. On other
+firmware versions the Flipper may warn about an API mismatch. In that case build
+from source. The app is also submitted to the Flipper Apps Catalog (in review).
 
 ## Build from source
 
